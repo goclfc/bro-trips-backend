@@ -7,7 +7,25 @@ import tripRoutes from './routes/trips.js';
 import bookingRoutes from './routes/bookings.js';
 
 const app = express();
-app.use(cors({ origin: process.env.CORS_ORIGIN ?? 'http://localhost:5173' }));
+
+const normalize = (o: string) => o.trim().replace(/\/+$/, '');
+const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:5173')
+  .split(',')
+  .map(normalize)
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin(origin, callback) {
+      // Allow non-browser requests (no Origin header) and any allowlisted origin.
+      if (!origin || allowedOrigins.includes(normalize(origin))) {
+        callback(null, true);
+      } else {
+        callback(new Error(`origin not allowed: ${origin}`));
+      }
+    },
+  }),
+);
 app.use(express.json());
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));

@@ -115,6 +115,36 @@ src/
 
 ## Deployment notes
 
+### Docker
+
+A multi-stage `Dockerfile` is included. It builds the TypeScript sources,
+ships `dist/` (including `schema.sql`) into a slim runtime image, and runs
+`node dist/server.js`. Build locally to sanity-check:
+
+```sh
+docker build -t brotrips-backend .
+docker run --rm -p 4000:4000 \
+  -e DATABASE_URL=... -e JWT_SECRET=... -e CORS_ORIGIN=... \
+  brotrips-backend
+```
+
+On PaaS targets that detect a Dockerfile (Coolify, Dokploy, Railway, Fly,
+Render, etc.), no extra build/start config is needed.
+
+### One-time schema bootstrap in production
+
+`npm run db:init:prod` runs the compiled `dist/db-init.js` against
+`DATABASE_URL`. Run it once after first deploy (or as a release hook):
+
+```sh
+docker run --rm -e DATABASE_URL=... brotrips-backend npm run db:init:prod
+```
+
+The schema is idempotent — every `CREATE` is `IF NOT EXISTS` and every
+`ALTER` is wrapped to skip if already applied — so re-running is safe.
+
+### Without Docker
+
 - `npm run build` emits to `dist/`; `npm start` runs the built server.
 - The schema is applied via `npm run db:init`. Run it once after the
   database is reachable (or as a post-deploy / release step).

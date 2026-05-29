@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc -p .",
+    "build": "tsc -p . && cp src/schema.sql dist/schema.sql",
     "start": "node dist/server.js",
-    "db:init": "tsx src/db-init.ts"
+    "db:init": "tsx src/db-init.ts",
+    "db:init:prod": "node dist/db-init.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

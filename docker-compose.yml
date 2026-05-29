@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: brotrips-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: brotrips
+      POSTGRES_PASSWORD: brotrips
+      POSTGRES_DB: brotrips
+    ports:
+      - "5433:5432"
+    volumes:
+      - brotrips-pgdata:/var/lib/postgresql/data
+
+volumes:
+  brotrips-pgdata:

@@ -9,8 +9,20 @@ import bookingRoutes from './routes/bookings.js';
 const app = express();
 
 const normalize = (o: string) => o.trim().replace(/\/+$/, '');
-const allowedOrigins = (process.env.CORS_ORIGIN ?? 'http://localhost:5173')
-  .split(',')
+
+// Hardcoded so a misconfigured CORS_ORIGIN env var can't break the live site.
+// The deployed frontend is served at bro-tips.usectl.com (no second "r");
+// bro-trips is kept too in case the domain is ever corrected to match the repo.
+const HARDCODED_ORIGINS = [
+  'https://bro-tips.usectl.com',
+  'https://bro-trips.usectl.com',
+  'http://localhost:5173',
+];
+
+const allowedOrigins = [
+  ...HARDCODED_ORIGINS,
+  ...(process.env.CORS_ORIGIN ?? '').split(','),
+]
   .map(normalize)
   .filter(Boolean);
 
